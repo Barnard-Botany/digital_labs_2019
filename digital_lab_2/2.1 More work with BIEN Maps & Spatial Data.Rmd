@@ -1,0 +1,392 @@
+---
+title: "More work with BIEN Maps and BIEN Spatial & Trait Data"
+output: html_notebook
+---
+
+Please note that this is a follow-up notebook that should not be done until after working through (and reviewing): PF1 1.3 and 1.4 (BIEN), PF2 2.1 (VEGAN) and PF2 2.2 (GBIF).
+
+```{r}
+#install and load appropriate packages
+library(BIEN)
+#library(ape)
+library(maps)
+library(sp)
+library(vegan)
+library(labdsv)
+library(plyr)
+```
+
+Another feature of BIEN is that it can be limited to specified spatial places. 
+
+One built-in feature is to obtain data for different political jurisdictions such as nations, states or provinces within nations, and counties or parishes within states/provinces.
+
+The first line in the chunk of code below (commented out) can be used to obtain  a comprehensive list of all those political jurisdictions which is useful to figure out how to ask for, say "United States" rather than "USA" and so forth. 
+
+The rest of the code shows how to get county lists, and how to create a vector with a list of multiple locales to search for all of them in a single query. 
+
+```{r}
+#BIEN_metadata_list_political_names()
+MidMass_list<-BIEN_list_county(country = "United States", state="Massachusetts", county="Middlesex")
+OrangeCal_list<-BIEN_list_county(country = "United States", state="California", county="Orange")
+GNYC<- c("Kings", "Queens", "Richmond", "New York", "Bronx", "Nassau", "Westchester")
+GNYC_list<-BIEN_list_county(country = "United States", state="New York", county=GNYC)
+head(MidMass_list)
+tail(MidMass_list)
+#names(GNYC)
+colnames(MidMass_list)
+head(OrangeCal_list)
+tail(OrangeCal_list)
+colnames(OrangeCal_list)
+head(GNYC_list)
+tail(GNYC_list)
+#names(GNYC_list)
+colnames(GNYC_list)
+#The line beginning with GNYC_list combined a search for counties/boroughs of NYC and two adjacent counties.
+#The same task could be done by downloading each county's data individually
+Kings_list<-BIEN_list_county(country = "United States", state="New York", county="Kings")
+Queens_list<-BIEN_list_county(country = "United States", state="New York", county="Queens")
+Richmond_list<-BIEN_list_county(country = "United States", state="New York", county="Richmond")
+NewYork_list<-BIEN_list_county(country = "United States", state="New York", county="New York")
+Bronx_list<-BIEN_list_county(country = "United States", state="New York", county="Bronx")
+Nassau_list<-BIEN_list_county(country = "United States", state="New York", county="Nassau")
+Westchester_list<-BIEN_list_county(country = "United States", state="New York", county="Westchester")
+seven<-rbind(Kings_list, Queens_list, Richmond_list, NewYork_list, Bronx_list, Nassau_list)
+head(seven)
+tail(seven)
+```
+
+That worked great! But we've left behind a lot of data that can be obtained from BIEN. 
+
+A larger issue is that GBIF and BIEN take quite different approaches to data downloading. With GBIF, all fields of data are downloaded by default. In contrast, with BIEN, only a few of all available fields are downloaded. 
+
+We can get access to more BIEN data using a function for occurrence data. This is better than list data because it will give all occurrence data within the jurisdiction and not just a list for the jurisdiction.
+
+This feature can also be modified with what R calls "arguments" to ask for data about native status (must ask for this with native .status=TRUE), taxonomic data such as family and order (must ask for this with all.taxonomy=TRUE), political boundary such as country, state/province, and county (in columns, useful later).
+
+```{r}
+MidMass_occ<-BIEN_occurrence_county(country = "United States", state="Massachusetts", county="Middlesex", native.status = TRUE, all.taxonomy = TRUE, political.boundaries = TRUE)
+OrangeCal_occ<-BIEN_occurrence_county(country = "United States", state="California", county="Orange", native.status = TRUE, all.taxonomy = TRUE, political.boundaries = TRUE)
+GNYC<- c("Kings", "Queens", "Richmond", "New York", "Bronx", "Nassau", "Westchester")
+GNYC_occ<-BIEN_occurrence_county(country = "United States", state="New York", county=GNYC, native.status = TRUE, all.taxonomy = TRUE, political.boundaries = TRUE)
+head(MidMass_occ)
+tail(MidMass_occ)
+colnames(MidMass_occ)
+head(OrangeCal_occ)
+tail(OrangeCal_occ)
+head(GNYC_occ)
+tail(GNYC_occ)
+#To do this with the borough/county specific data:
+Kings_occ<-BIEN_occurrence_county(country = "United States", state="New York", county="Kings", native.status = TRUE, all.taxonomy = TRUE, political.boundaries = TRUE)
+Queens_occ<-BIEN_occurrence_county(country = "United States", state="New York", county="Queens", native.status = TRUE, all.taxonomy = TRUE, political.boundaries = TRUE)
+Richmond_occ<-BIEN_occurrence_county(country = "United States", state="New York", county="Richmond", native.status = TRUE, all.taxonomy = TRUE, political.boundaries = TRUE)
+Bronx_occ<-BIEN_occurrence_county(country = "United States", state="New York", county="Bronx", native.status = TRUE, all.taxonomy = TRUE, political.boundaries = TRUE)
+NewYork_occ<-BIEN_occurrence_county(country = "United States", state="New York", county="New York", native.status = TRUE, all.taxonomy = TRUE, political.boundaries = TRUE)
+Nassau_occ<-BIEN_occurrence_county(country = "United States", state="New York", county="Nassau", native.status = TRUE, all.taxonomy = TRUE, political.boundaries = TRUE)
+Westchester_occ<-BIEN_occurrence_county(country = "United States", state="New York", county="Westchester", native.status = TRUE, all.taxonomy = TRUE, political.boundaries = TRUE)
+```
+
+Well, that worked amazingly. 
+
+Maybe we should check the data spatially. Remember we knew how to make world maps? Here, we instead use a map of the USA.
+
+```{r}
+map('usa',fill=T , col= "grey", bg="light blue")
+
+points(cbind(MidMass_occ$longitude,MidMass_occ$latitude),col="red",pch=20,cex=1) 
+points(cbind(GNYC_occ$longitude,GNYC_occ$latitude),col="blue",pch=20,cex=1) 
+points(cbind(OrangeCal_occ$longitude,OrangeCal_occ$latitude),col="green",pch=20,cex=1) 
+
+
+# See this for many more details about maps in the package MAPS
+# https://cran.r-project.org/web/packages/maps/maps.pdf
+# or
+# https://cran.r-project.org/doc/contrib/intro-spatial-rl.pdf
+```
+
+```{r}
+map('county',region = c('Kings', 'Queens', 'Richmond', 'Bronx', 'New York', 'Nassau', 'Westchester'), fill=T , col= "grey", bg="light blue")
+points(cbind(Kings_occ$longitude,Kings_occ$latitude),col="red",pch=20,cex=1) 
+points(cbind(Queens_occ$longitude,Queens_occ$latitude),col="blue",pch=20,cex=1) 
+points(cbind(Richmond_occ$longitude,Richmond_occ$latitude),col="green",pch=20,cex=1) 
+points(cbind(Bronx_occ$longitude,Bronx_occ$latitude),col="white",pch=20,cex=1) 
+points(cbind(NewYork_occ$longitude,NewYork_occ$latitude),col="black",pch=20,cex=1) 
+points(cbind(Nassau_occ$longitude,Nassau_occ$latitude),col="yellow",pch=20,cex=1) 
+points(cbind(Westchester_occ$longitude,Westchester_occ$latitude),col="pink",pch=20,cex=1) 
+# See this for many more details about maps in the package MAPS
+# https://cran.r-project.org/web/packages/maps/maps.pdf
+# or
+# https://cran.r-project.org/doc/contrib/intro-spatial-rl.pdf
+```
+
+### From downloaded BIEN data to files useful for analysis in VEGAN
+
+We might want to do three things with this file. One might be to turn it into a presence and absence file, which could be done using commands learned in a previous lesson focusing on VEGAN
+
++ BIEN has tools that allow us to focus on plants that are not cultivated or invasive in the area, and therefore to focus on non-native species
+
++ In our lesson focusing on GBIF and RGBIF, we learned to subset only certain columns and to turn our downloaded data into an R dataframe, and to remove missing data. 
+
++ In our lesson focusing on VEGAN, we  learned to count the frequency of occurrences for each individual species in a list. If we assume that the multiple listings of species in our dataset are meaningful, then we might want to re-visit that procedure. Or, we could use a strategy to change our locale-specific lists into presence-absence data (a matrix of ones and zeroes).
+
+First let's put that all together into one file, lining up all columns:
+
+```{r}
+ALL_occ<-rbind(MidMass_occ, OrangeCal_occ, GNYC_occ)
+ALL_occ<-as.data.frame(ALL_occ)
+head(ALL_occ)
+tail(ALL_occ)
+```
+
+#### Focusing only on certain categories, such as non-native or introduced
+
+This can be done for any category. For example, an analysis could focus only on certain families like the Poaceae.
+
+The chunk of code below gives species that are never on lists of native plants. It's also possible to get plants that are introduced.
+
+```{r}
+ALL_occ_A<-subset(ALL_occ, native_status == "A")
+head(ALL_occ_A)
+tail(ALL_occ_A)
+
+```
+
+```{r}
+ALL_occ_I<-subset(ALL_occ, is_introduced == "1")
+head(ALL_occ_I)
+tail(ALL_occ_I)
+```
+
+#### Focusing only on certain columns in the data, and removing incomplete columns
+
+This file has a lot of columns, and could be cut down for simplicity of reviewing it as we continue to work with it
+
+```{r}
+colnames(ALL_occ)
+```
+
+If we wanted to subset further for just certain columns, working with the non-native list:
+
+```{r}
+ALL_occ_Aslim<-subset(ALL_occ_A, select = c("scrubbed_species_binomial", "scrubbed_family", "county", "latitude", "longitude", "native_status", "is_introduced"))
+head(ALL_occ_Aslim)
+```
+
+You could further shorten column names, too.
+
+```{r}
+colnames(ALL_occ_Aslim)
+```
+
+How well did that work?
+
+```{r}
+colnames(ALL_occ_Aslim) <- c("species", "fam", "county", "lat", "lon", "native", "intro")
+head(ALL_occ_Aslim)
+tail(ALL_occ_Aslim)
+```
+
+Lastly, let's slim down the data set to just complete cases (since a scroll through shows NAs).
+
+```{r}
+ALL_occ_Aslim <- ALL_occ_Aslim[complete.cases(ALL_occ_Aslim),]
+dim(ALL_occ_Aslim)
+ALL_occ_Aslim
+```
+
+You can see that these data have repeated observations. If we had collected the data ourselves, we would be able to distinguish whether or not a repeat observation is meaningful. It may indicate two individual plants at/near the exact same location, or the same individual observed at different points in time, etc. For certain modeling exercises, such as modeling species niche or range boundaries, we might want to remove all or most duplicates. 
+
+If we want to remove duplicates, it is simple. That also means that any analysis in VEGAN will be working with just presence/absence data, nothing about frequency or abundance. 
+
+We can also leave them in to show how to work with data that has something similar to frequency or abundance data, rather than just presence/absence. 
+
+```{r}
+ALL_occ_Asmall <- unique(ALL_occ_Aslim)
+dim(ALL_occ_Asmall)
+head(ALL_occ_Asmall)
+```
+
+### VEGAN analysis at the level of County
+
+In a previous R Notebook focusing on VEGAN, you learned to work with lists of plants observed by species. You learned to count the frequency of occurrences for each individual species in sub-lists, and to bind together sub-lists. 
+
+We are now going to obtain one list of plants within a county . . . this could then be repeated and the lists combined into one, and then converted into a matrix that has the species as column headings, and then each county listed in rows, with each cell listing the abundance of each species.   
+
+This is similar to what we did during our lesson focusing on VEGAN (see biodiversity lists, VEGAN and LABDSV Notebook). 
+
+If we assume that the multiple listings of species in any given county dataset are meaningful, then we might want to re-visit procedures learned to get frequency data. Note this could be done with complete occurrence lists (which may be big files for some counties!). Lists can be slimmed down in various ways - to exclude cultivated species, or to look at only non-native or introduced species. 
+
+Below, we're using a command from the R package BIEN to get occurrence data for Queens County, which is the borough of Queens in New York City. 
+
+```{r}
+Columbia_occ<-BIEN_occurrence_county(country = "United States", state="New York", county = "Columbia", native.status = TRUE, all.taxonomy = TRUE, political.boundaries = TRUE)
+colnames(Columbia_occ)
+head(Columbia_occ)
+tail(Columbia_occ)
+```
+
+```{r}
+colnames(Queens_occ)
+```
+
+We get a lot of data fields! If we wanted to subset further for just certain columns:
+
+```{r}
+Dutchess_occ_Aslim<-subset(Putnam_occ, select = c("scrubbed_species_binomial", "scrubbed_family", "county", "latitude", "longitude", "native_status", "is_introduced"))
+dim(Dutchess_occ_Aslim)
+head(Dutchess_occ_Aslim)
+tail(Dutchess_occ_Aslim)
+```
+
+You could further shorten column names, too.
+
+```{r}
+colnames(Dutchess_occ_Aslim)
+colnames(Dutchess_occ_Aslim) <- c("species", "fam", "county", "lat", "lon", "native", "intro")
+dim(Dutchess_occ_Aslim)
+colnames(Dutchess_occ_Aslim)
+Dutchess_occ_Aslim
+```
+
+Lastly, let's slim down the data set to just complete cases (although this could be skipped).
+
+```{r}
+Dutchess_occ_Aslim <- Dutchess_occ_Aslim[complete.cases(Dutchess_occ_Aslim),]
+dim(Dutchess_occ_Aslim)
+Dutchess_occ_Aslim
+```
+
+Individual sub-lists  could be fed into the procedure below, similar to what we did during our lab session focusing on VEGAN (see biodiversity lists, VEGAN and LABDSV Notebook). 
+
+If we assume that the multiple listings of species in any given county dataset are meaningful, then we might want to re-visit procedures learned to get frequency data, simply counting how many times any given species was observed in the BIEN data set.  
+
+This is one reason why code keeps using the command "dim" to show the dimensions of the data frame. We are getting fewer and fewer rows. 
+
+```{r}
+Orange_count=count(Orange_occ_Aslim, "species")
+dim(Orange_count)
+Orange_count
+```
+
+Now we're going to re-name the column headings so that we can create the type of list that we need to do a community analysis in VEGAN. 
+
+```{r}
+Columbia_freq<-data.frame("Columbia", Columbia_count[,1:2])
+names(Columbia_freq)<-c("ListID", "SpeciesID", "Freq")
+dim(Columbia_freq)
+Columbia_freq
+```
+
+You can now repeat necessary steps to compile data from 5-7 counties (e.g., NYC five boroughs which are Kings (which is Brooklyn), Richmond (which is Staten Island), New York (which is Manhattan), Bronx and adjacent Westchester and Nassau).
+
+If you have seven files formatted identically to this last one, then you can then bind them into one data frame and then use the function called "matrify" to create a frequency matrix. 
+
+```{r}
+NY_freq<-rbind(Columbia_freq, Dutchess_freq, Rockland_freq, Putnam_freq, Orange_freq, Suffolk_freq, Nassau_freq, Bronx_freq, Kings_freq, Queens_freq, NewYork_freq, Richmond_freq)
+dim(NY_freq)
+head(NY_freq)
+tail(NY_freq)
+```
+
+After binding this big file together, its smart to name and export it, to avoid re-compiling steps during future sessions. 
+
+```{r}
+write.csv(NY_freq, file="NY_freq.csv")
+```
+
+Later, if you read this file, it will import with this code but will have an unneeded and incompatible index column, which can easily be removed.
+
+```{r}
+NY_freq<-read.csv("NY_freq.csv")
+```
+
+```{r}
+NY_freq<-NY_freq[,2:4]
+NY_freq
+```
+
+Because this is already formatted properly, it can be turned into  frequency matrix, using the function matrify:
+
+```{r}
+NY_matrix<-matrify(NY_freq)
+NY_matrix
+```
+
+```{r}
+NY_matrix<-as.matrix(NY_matrix)
+head(NY_matrix)
+tail(NY_matrix)
+```
+
+If you wanted to save this matrix as a file:
+
+```{r}
+write.csv(NY_matrix, file="NY_Matrix_fn5.csv")
+```
+
+## After you have a matrix: diversity indices, ordinations and ordination plotting
+
+```{r}
+#par(mfrow = c(1, 2))
+jaccard = vegdist(NY_matrix, "jaccard")
+jaccard
+bray = vegdist(NY_matrix, "bray") 
+bray
+gower = vegdist(NY_matrix, "gower")
+gower
+```
+
+```{r}
+SpAbund<-rowSums(NY_matrix)
+SpAbund
+raremin<-min(rowSums(NY_matrix))
+raremin
+sRare<-rarefy(NY_matrix, raremin)
+sRare
+rarecurve(NY_matrix, col = "blue")
+```
+
+```{r}
+example_NMDS=metaMDS(NY_matrix, k = 2) # Our community-by-species matrix 
+# K=2 is setting the number of reduced dimensions. Increase if high stress is problem. 
+#"The stress, or the disagreement between 2-D configuration and predicted values from the regression"
+
+#A good rule of thumb: stress > 0.05 provides an excellent representation in reduced dimensions, > 0.1 is great, >0.2 is good/ok, and stress > 0.3 provides a poor representation
+
+plot(example_NMDS)
+test.plot<-ordiplot(example_NMDS,type="n") #Ordination plot function especially for congested plots
+points(test.plot, "species", pch=21, col="red", bg="yellow")
+
+test.plot<-ordiplot(example_NMDS,type="n") #Ordination plot function especially for congested plots
+points(test.plot, "sites", col="blue", cex=0.9)
+
+test.plot<-ordiplot(example_NMDS,type="n") #Ordination plot function especially for congested plots
+points(test.plot, "species", pch=21, col="red", bg="yellow")
+text(test.plot, "sites", col="blue", cex=0.9)
+
+test.plot<-ordiplot(example_NMDS,type="n") #Ordination plot function especially for congested plots
+text(test.plot, "species", pch=21, col="red", bg="yellow")
+points(test.plot, "sites", col="blue", cex=0.9)
+
+# 
+#ordiplot(example_NMDS,type="n", display="sites") #Ordination plot function especially for congested plots
+#ordiplot(example_NMDS,type="n", display="species") #Ordination plot function especially for congested plots
+```
+
+```{r}
+#The function adds text or points to ordination plots; lists only
+#Sites only
+plot(example_NMDS)
+
+ordiplot(example_NMDS,type="n") #Ordination plot function especially for congested plots
+orditorp(example_NMDS,display="sites",cex=1.25,air=0.01)
+#species only
+ordiplot(example_NMDS,type="n") #Ordination plot function especially for congested plots
+orditorp(example_NMDS,display="species",col="red",air=0.01) 
+
+#Text for Species and sites together
+ordiplot(example_NMDS,type="n") #Ordination plot function especially for congested plots
+orditorp(example_NMDS,display="species",col="red",air=0.01) 
+orditorp(example_NMDS,display="sites", cex=1.25,air=0.01)
+```
+
+
