@@ -1,11 +1,11 @@
 # Global Power of Botany 
-This course will include a series of digital labs, and two big portions of your grade will come from (1) completing your Digital Portfolio and (2) projects that will require digital skills. Our first digital lab is not until Week 3, but you should get started earlier. Why is this important?
+This course will include a series of digital labs, and two big portions of your grade will come from (1) completing your Digital Portfolios and (2) projects that will require digital skills. Our first digital lab is not until Week 3, but you should get started earlier. Why is this important?
  
 First, if you can get early assignments done, you'll be ahead and you'll be confident and productive during the first digital lab and beyond.
  
-Second, there are several assignments for the Digital Portfolio that you should do early, and even though some are entirely or mostly browser-based, you will find it's necessary to have R and RStudio to format them for the portfolio.
+Second, there are several assignments for the Digital Portfolios that you should do early, and even though some are entirely or mostly browser-based, you will find it's necessary to have R and RStudio to format them for the portfolios.
 
-So, do it right after class! It is easy to do on PC or Mac. I estimate that you can do the installation and do some post-installation exploring in about 40 minutes time.
+It is easy to do on PC or Mac. I estimate that you can do the installation and do some post-installation exploring in about 40 minutes time.
 
 ## Getting Started with...
 
@@ -13,7 +13,7 @@ So, do it right after class! It is easy to do on PC or Mac. I estimate that you 
 Install R from https://cran.r-project.org/
 Download RStudio Desktop (FREE) from https://www.rstudio.com/products/rstudio/download/#download
 
-Everyone in the class should know about lynda.com. Because you've paid tuition, you have access to it and you'll just need to sign up (using your UNI) and sign in (if you weren't a student, fees would be required).
+Everyone in the class should know about [lynda.com](https://www.lynda.com/). Because you've paid tuition, you have access to it and you'll just need to sign up (using your UNI) and sign in (if you weren't a student, fees would be required).
 
 If you're having trouble downloading R or RStudio, go to lynda.com, navigate to "R Statistics Essential Training" and follow the first three tutorials:
 (1) Install R on your computer. Video is 3:19; at most you need 5 minutes to install R.
