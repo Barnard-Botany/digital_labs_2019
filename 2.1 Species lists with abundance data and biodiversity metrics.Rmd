@@ -1,5 +1,5 @@
 ---
-title: "Species lists with abundance data, and biodiversity metrics"
+title: "Species lists with abundance data and biodiversity metrics"
 output: html_notebook
 ---
 
