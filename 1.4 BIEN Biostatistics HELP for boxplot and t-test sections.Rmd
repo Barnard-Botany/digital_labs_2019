@@ -1,0 +1,279 @@
+---
+title: "BIEN Biostatistics HELP for boxplots and t-tests"
+output: html_notebook
+---
+
+## Trait Data:  Using BIEN data to practice boxplots and t-tests
+
+We learned to download trait data. First we downloaded data for the entire genus Artocarpus:
+
+```{r}
+# Create data frame of breadfruit traits
+breadfruit_traits <- BIEN_trait_genus(genus = "Artocarpus")
+str(breadfruit_traits)
+head(breadfruit_traits)
+```
+
+And I suggested that you download data for just one trait, diameter at breast height (or DBH).
+
+```{r}
+Breadfruit_DBH <- BIEN_trait_traitbygenus(trait = "diameter at breast height (1.3 m)", genus = "Artocarpus")
+#head(Breadfruit_DBH)
+#tail(Breadfruit_DBH)
+#str(Breadfruit_DBH)
+names(Breadfruit_DBH)
+#You got a lot of variables in addition to the DBH trait data, which has the column name "trait_value"
+```
+
+Then we trimmed the big downloaded dataframe to save just the first five columns. 
+
+As data are initially downloaded from BIEN, they come down as character data, not numeric data. So, there is code below to do two things:
+
+1. Re-name trait_value as DBH
+
+2. Change the variable DBH from a character variable to a numeric variable.
+
+In the trimmed file, the trait is still called "trait_value".
+
+We extracted DBH from the trimmed file, and it now exists as just a stand-alone variable. DBH is not part of the dataframe Breadfruit_DBH_small.
+
+```{r}
+Breadfruit_DBH_small = Breadfruit_DBH[c(1:5)]
+head(Breadfruit_DBH_small)
+#tail(Breadfruit_DBH_small)
+Breadfruit_DBH_small = as.data.frame(Breadfruit_DBH_small)
+#We can see that our new dataframe is a dataframe
+class(Breadfruit_DBH_small)
+#But what type of variable is the trait value? It should be numeric, but it's not. It comes from the BIEN database as a character variable. 
+class(Breadfruit_DBH_small$trait_value)
+#So, in addition to renaming it
+DBH = Breadfruit_DBH_small$trait_value
+class(DBH)
+#We also need to change it from a character variable to a numeric variable
+DBH = as.numeric(Breadfruit_DBH_small$trait_value)
+class(DBH)
+```
+
+Note two things are being done below:
+
+1. Loading a library used for making boxplots. 
+
+2. asking for a boxplot just with our stand-alone variable DBH
+
+
+```{r}
+#We learned to use the package lattice, for making boxplots and histograms of data
+library(lattice)
+boxplot(DBH~scrubbed_species_binomial, data=Breadfruit_DBH_small)
+```
+
+Then we downloaded another variable for the whole genus, whole plant height  	
+
+```{r}
+Breadfruit_WPH <- BIEN_trait_traitbygenus(trait = "whole plant height", genus = "Artocarpus")
+names(Breadfruit_WPH)
+#Breadfruit_WPH
+#Notice again that the trait is in there just as "trait_value"
+```
+
+One again, slimming down the dataframe is a good idea. 
+
+And then recycle your code from above and create a new stand-alone variable called WPH, making sure it is converted into a numeric variable.
+```{r}
+Breadfruit_WPH_small = Breadfruit_WPH[c(1:5)]
+head(Breadfruit_WPH_small)
+Breadfruit_WPH_small = as.data.frame(Breadfruit_WPH_small)
+class(Breadfruit_WPH_small)
+head(Breadfruit_WPH_small)
+class(Breadfruit_WPH_small$trait_value)
+WPH = as.numeric(Breadfruit_WPH_small$trait_value)
+class(WPH)
+```
+
+
+We can figure out the mean values of DBH and WPH, which is the mean for the entire genus. 
+
+Since we defined DBH and WPH as stand-alone variables, we can use simplified code:
+
+```{r}
+mean(DBH)
+mean(WPH)
+```
+
+
+Next, we switched over downloading for just one species at a time, starting with Artocarpus nitidus: 
+
+note we are using a different function in the BIEN package: BIEN_trait_traitbyspecies
+
+```{r}
+#library(BIEN)
+Anitidus_DBH <- BIEN_trait_traitbyspecies(trait = "diameter at breast height (1.3 m)", species = "Artocarpus nitidus")
+head(Anitidus_DBH)
+#tail(Anitidus_DBH)
+```
+
+and the data are similarly formatted, and so we can recycle similar code to slim down the dataframe: 
+
+Again, we also created a new stand-alone variable for this species, called DBHn (for the species A. nitidus)
+
+Always, data from BIEN must be converted to a numeric variable before doing plotting or biostatistics.
+
+```{r}
+Anitidus_DBH_small <-Anitidus_DBH[c(1:5)]
+class(Anitidus_DBH_small)
+head(Anitidus_DBH_small)
+class(Anitidus_DBH_small$trait_value)
+DBHn = Anitidus_DBH_small$trait_value
+class(DBHn)
+#We only named a new stand-alone variable, we didn't change it from character to numeric
+DBHn = as.numeric(Anitidus_DBH_small$trait_value)
+class(DBHn)
+#Now it's changed to numeric
+```
+
+
+```{r}
+hist(DBH)
+boxplot(DBH)
+#You get just one "box" because there is no grouping - this is all data for just one genus.
+hist(DBHn)
+boxplot(DBHn)
+#Similarly, you get just one "box" because this is data for just one species.
+```
+
+
+Repeating everything for another species, Artocarpus hirsutus: 
+
+```{r}
+Ahirsutus_DBH <- BIEN_trait_traitbyspecies(trait = "diameter at breast height (1.3 m)", species = "Artocarpus hirsutus")
+head(Ahirsutus_DBH)
+#tail(Ahirsutus_DBH)
+#class(Ahirsutus_DBH)
+```
+
+
+```{r}
+Ahirsutus_DBH_small = Ahirsutus_DBH[c(1:5)]
+class(Ahirsutus_DBH_small)
+head(Ahirsutus_DBH_small)
+DBHh = Ahirsutus_DBH_small$trait_value
+class(DBHh)
+DBHh = as.numeric(Ahirsutus_DBH_small$trait_value)
+class(DBHh)
+```
+
+We could plot of DBHh just for the species Artocarpus hirsutus
+
+
+```{r}
+hist(DBHh)
+boxplot(DBHh)
+#Similarly, you get just one "box" because this is data for just one species.
+```
+
+
+## A simple way to do a t-test: compare DBHn with DBHh
+
+Now we have created two variables, for two different species: :
+
+1. DBHn is data for A. nitens
+
+2. DBHh is data for A. hirsutus
+
+You can make a boxplot in this simple way for these two variables. 
+
+```{r}
+boxplot(DBHh, DBHn)
+```
+
+You could do this for more than two variables, if you had defined them. Just for fun, let's compare the two species and the whole genus:
+
+```{r}
+boxplot(DBHh, DBHn, DBH)
+```
+
+
+
+Also, we can then run a t-test by simply assigning one of our stand-alone numeric variables as x and the other as y. T-test is always for just two groups, so we couldn't add more variables as we could for the boxplot. 
+
+```{r}
+#We just defined one variable in vector form, which is DBHn (all the DBH values for A. nitens)
+DBHn
+#We also defined a similar variable in vector form, DBHh (which is all the DBH variables for A. hirsutus)
+DBHh
+#we can run a t-test just by defining one variable as x, the other as y. 
+ttest_result1 = t.test(x=DBHn, y=DBHh, paired=FALSE, alternative="two.sided")
+ttest_result1
+```
+
+If we reverse the order, we get the same result:
+
+```{r}
+#We just defined one variable in vector form, which is DBHa (all the DBH values for A. nitens)
+DBHn
+#We also defined a similar variable in vector form, DBHh (which is all the DBH variables for A. hirsutus)
+DBHh
+#we can run a t-test just by defining one variable as x, the other as y. 
+ttest_result1 = t.test(x=DBHh, y=DBHn, paired=FALSE, alternative="two.sided")
+ttest_result1
+```
+
+
+## Grouping variables: combine two variables into one, then splitting one into two
+
+Another way to go about doing this would be to combine the two 
+
+```{r}
+#During Digital Lab 1, we showed you how to combine two dataframes downloaded from BIEN:
+#That involved the package DPLYR
+library(dplyr)
+#And the command rbind to create one dataframe with all the original columns for both species
+Artocarpus2<-rbind(Anitidus_DBH_small, Ahirsutus_DBH_small)
+head(Artocarpus2)
+tail(Artocarpus2)
+class(Artocarpus2$trait_value)
+#Then we defined a numeric variable, combining all the DBH values for both species
+DBHboth = as.numeric(Artocarpus2$trait_value)
+class(DBHboth)
+```
+
+```{r}
+#Plotting that without the grouping variable results in a dumb boxplot (and an always-useful histogram)
+hist(DBHboth)
+boxplot(DBHboth)
+```
+
+```{r}
+#But We can do something clever. 
+#First, combine the numeric variable DBHboth, adding it as a sixth column into the
+#BIEN dataframe just created above:
+ArtocarpusBoth<-cbind(Artocarpus2, DBHboth)
+head(ArtocarpusBoth)
+tail(ArtocarpusBoth)
+```
+
+
+
+```{r}
+#Now, using the variable "scrubbed_species_binomial" divides the overall data into two groups, by species
+#in the revised code below, notice the ~ symbol (known as a tilde)
+#It tells R to use what comes after as a grouping variable
+boxplot(DBHboth~scrubbed_species_binomial, data=ArtocarpusBoth)
+```
+
+
+
+```{r}
+#similarly, we can use that same grouping trick, calling the same t-test function
+#above we had used x=DBHn and x=DBHh
+#but now we will use our different format - DBHboth~scrubbed_species_binomial
+#again, that ~  tells R to use what comes after it as a grouping variable
+ttest_result2 = t.test(DBHboth~scrubbed_species_binomial, ArtocarpusBoth, paired=F)
+ttest_result2
+```
+
+####To complete this portfolio:
+
+Before our next digital lab on Feb 22, choose one of the exercises that involve choosing two species, downloading trait data for both, and then creating boxplots and conducting t-tests.  
+
+Also use this last coding exercise to obtain species lists for three counties in a state in the USA outside of New York. For example, you could start with the county where you attended high school. Or, you could use a county where you have vacationed in the past, or where you would like to visit. Also download data for two adjacent counties. 
