@@ -498,4 +498,12 @@ How do you interpret the indices computed for the County data?
 
 Now process the other three lists in the same fashion.
 
-How do you interpret indices computed from your second type of data? 
+How do you interpret indices computed from your second type of data?
+
+This is my homework.
+
+
+
+
+
+
