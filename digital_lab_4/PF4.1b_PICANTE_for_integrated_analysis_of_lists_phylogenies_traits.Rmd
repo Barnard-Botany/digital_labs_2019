@@ -13,11 +13,11 @@ In our third digital lab, we worked with APE to prepare and read tree data, to p
 
 While today's fourth lab has focused quite a bit on working with databases and mapping, I also want to show you how the previous three labs can be integrated conceptually and, operationally, using an R package called Picante. I'm just going to show you the tip of the iceberg, but these tools might be super-useful to those working on projects about local tree biodiversity (in and near NYC) and also to those working on projects about medicinal plants. 
 
-Picante should come loaded with base R, but it it doesn't it can be installed routinely (from CRAN repository)
+Picante should come loaded with base R, but if it doesn't it can be installed routinely (from CRAN repository).
 
 ```{r}
 #install.packages("picante")
-library("picante")
+library(picante)
 ```
 
 
@@ -27,8 +27,6 @@ There is a useful sample data set in the package called phylocom that we should 
 data(phylocom)
 names(phylocom)
 head(phylocom)
-data(phy)
-data(comm)
 ```
 Let's look at how many taxa are in the tree and in the trait data, and compare that with the number of taxa in the abundance matrix ("comm").
 
@@ -37,9 +35,9 @@ Since there are more taxa in the phylogeny than in the community, we can actuall
 ```{r}
 #First, let's rename the phylogeny part of our sample data
 #And also rename the community abundance matrix part of our sample data
-phy=phylocom$phylo
-comm=phylocom$sample
-traits=phylocom$traits
+phy <- phylocom$phylo
+comm <- phylocom$sample
+traits <- phylocom$traits
 #Now let's prune phy so that its taxa exactly match the taxa in comm
 prunedphy <- prune.sample(comm, phy)
 prunedphy
@@ -54,17 +52,14 @@ Once that's done, we can do something right away to make a point about what we'r
 #We'll use it below to set up a 2,2 grid instead of the 2,3 grid used here
 par(mfrow = c(2, 3))
 #Now we are going to start a loop. 
-#Here, i= 6 because there are six samples in six rows of the commuinty matrix.
+#Here, i= 6 because there are six samples in six rows of the community matrix.
 #The loop does the same thing i times, meaning 6 times 
 #Each time through the loop, something different is being added to the tip labels on the plot command based on the six samples (which are in the six rows of our abundance matrix)
-
 
 for (i in row.names(comm)) {
 plot(prunedphy, show.tip.label = FALSE, main = i)
 tiplabels(tip = which(prunedphy$tip.label %in% names(which(comm [i, ] > 0))), pch=22, cex=2)
 }
-
-
 ```
 
 
@@ -115,7 +110,7 @@ plot(tr_lectureFULL, type="cladogram", direction=c("upwards"))
 ```
 
 
-Alsthough the "read.tree" command in APE can create a phylo object without tree lengths,  such a tree will not work with PICANTE. Lengths need to be part of the phylogeny (and the R phylogeny object that is created using the "read.tree" command. If lengths are unavailable, they can all be entered as 1.
+Although the "read.tree" command in APE can create a phylo object without tree lengths,  such a tree will not work with PICANTE. Lengths need to be part of the phylogeny (and the R phylogeny object that is created using the "read.tree" command). If lengths are unavailable, they can all be entered as 1.
 
 ```{r}
 newick_one_lengths = "((((((((A:1,B:1):1,((C:1,D:1):1):1):1):1,(((E:1,F:1):1,G:1):1):1):1):1,H:1):1,((((I:1,J:1):1,K:1):1,(L:1,M:1):1):1,((N:1,O:1):1,(P:1,Q:1):1):1):1):1);"
@@ -138,7 +133,7 @@ See the important note below about row.names and converting this data.frame to a
 
 
 ```{r}
-abundance=read.csv("matrify_EXAMPLE.csv", row.names = 1)
+abundance <- read.csv("matrify_EXAMPLE.csv", row.names = 1)
 #Notice that last detail in reading the file. Otherwise you'll get error messages.
 #The format required in VEGAN and PICANTE is for the first row to be the names of samples
 #This first row is not a variable, and should not be read as one
@@ -146,13 +141,13 @@ abundance
 ```
 
 
-Be sure not so skip over this important step with comments!
+Be sure not to skip over this important step with comments!
 
 ```{r}
-#Also, this read as a dataframe, but for graphing (below) it needs to be a matrix
+#Also, this was read as a dataframe, but for graphing (below) it needs to be a matrix
 #It can be converted from dataframe to matrix because all the variables are homogenous
 #(They are all numeric values)
-abundance=as.matrix(abundance)
+abundance <- as.matrix(abundance)
 dim(abundance)
 ```
 
@@ -171,7 +166,7 @@ plot(prunedAB)
 ```{r}
 #This first line sets up a grid for mapping multiple phylogenies on one panel
 #This is a general command that could be used almost anywhere
-#We'll used it avoe to set up a 2,3 grid. Here, instead, we set us a 2,2 grid for four plots.
+#We used it above to set up a 2,3 grid. Here, instead, we set up a 2,2 grid for four plots.
 par(mfrow = c(2, 2))
 #Now we are going to start a loop, so that we do the same thing four times, but each first, second, third and fourth times through the loop, something different is being added to the tip labels on the plot command based on the four samples (which are in the four rows of our abundance matrix)
 for (i in row.names(abundance)) {
@@ -181,7 +176,7 @@ plot(prunedAB, show.tip.label = FALSE, main = i)
 ```
 
 
-Visually, it's clear that sample "five"" is quite different as compared to "one" and "three" and "two" which have taxa confined to just one sub-clade within the tree. In contrast, "five" has taxa from both sub-clades in the overall tree. Above, we looked at the metric known as Faith's phylogenetic diversity (PD) and wil now do that for our new sample:
+Visually, it's clear that sample "five"" is quite different as compared to "one" and "three" and "two" which have taxa confined to just one sub-clade within the tree. In contrast, "five" has taxa from both sub-clades in the overall tree. Above, we looked at the metric known as Faith's phylogenetic diversity (PD) and will now do that for our new sample:
 
 ```{r}
 pd.EXAMPLE <- pd(abundance, prunedAB, include.root=TRUE)
@@ -232,7 +227,7 @@ traitsEX
 ```
 
 
-Nowlet's plot the size traits and binary/discrete traits (either have or do not have a trait).
+Now let's plot the size traits and binary/discrete traits (either have or do not have a trait).
 
 ```{r}
 par(mfrow = c(2, 2))
@@ -242,15 +237,15 @@ tiplabels(pch = 22, col = traitsEX[, i] + 1, bg = traitsEX[, i] + 1, cex = 1.5)
 }
 ```
 
-The trait labeled as "traitINERTIA" is seems to correspond to two major clades (with infrequent exceptions) and compared to "traitINNO" which doesn't. For the size traits, this simple technique is a little harder to discern, but we could imagine spending a lot more time to refine our color coding, but bear in mind that size traits in plants can have a lot of environmental plasticity, which also makes it hard to analyze them for phylogenetic signal. 
+The trait labeled as "traitINERTIA" seems to correspond to two major clades (with infrequent exceptions) compared to "traitINNO" which doesn't. For the size traits, this simple technique is a little harder to discern, but we could imagine spending a lot more time to refine our color coding, but bear in mind that size traits in plants can have a lot of environmental plasticity, which also makes it hard to analyze them for phylogenetic signal. 
 
-There's already too much in this course and in these digital labs, so I'm not going to go into further depth about using Picante for phylogenetic trait analysis, but it's a cool idea, right? These days, people doing trait analysis no longer use Picante, opting insteada to work with  another package called "phytools""
+There's already too much in this course and in these digital labs, so I'm not going to go into further depth about using Picante for phylogenetic trait analysis, but it's a cool idea, right? These days, people doing trait analysis no longer use Picante, opting instead to work with  another package called "phytools".
 
 ## Mini-exercise 3
 
-After using all the code above and perusing results, review what you've done with the PICANTE package by going back and making comparisons with the VEGAN package, which doesn't ever consider phylogeny. Simply work with the fake communities created: one, three, two and five
+After using all the code above and perusing results, review what you've done with the PICANTE package by going back and making comparisons with the VEGAN package, which doesn't ever consider phylogeny. Simply work with the fake communities created: one, three, two and five.
 
-Then, leave fake communities behind! Do one of the following. You will need to write proper code and show results (with annotations) your work in this notebook or create a new notebook: 
+Then, leave fake communities behind! Do one of the following. You will need to write proper code and show results (with annotations) of your work in this notebook or create a new notebook: 
 
 A. Based on six different recipes or menu items, create lists of at least 10 types of plants that are ingredients. For each, list the 10 most critical plant species that you would need to purchase as ingredients to prepare these foods. For simplicity, list the same number of plant species for each. 
 
@@ -258,7 +253,7 @@ B. Different municipal areas maintain street trees as part of the urban environm
 
 Compile your six lists into an abundance matrix. If it's too hard to get abundances, compile presence/absence matrix. Be sure to write the file and push it back to the GitHub repository when you complete this assignment (revisit Digital Lab 2 skills). 
 
-The compiled matrix has a master list of all plant species across all six lists. Resolve this master list for proper taxonomy -- each plant species should have an accepted scientific species name. (Using taxize if possible )
+The compiled matrix has a master list of all plant species across all six lists. Resolve this master list for proper taxonomy -- each plant species should have an accepted scientific species name. (Using taxize if possible.)
 
 Phylogenize (revisiting skills from Digital Lab 3). Again, it's a good idea to write the tree you create as a file; you then can and should push back to GitHub as you submit your assignment. 
 
@@ -290,5 +285,3 @@ http://media.nycgovparks.org/images/web/TreesCount/Index.html
 
 Interesting additional resource - trees for 2050
 https://www.chicagobotanic.org/blog/plant_science_conservation/trees_2050
-
-
